@@ -39,6 +39,24 @@ docker build -t housing-price-api:0.1.0 .
 docker run -p 8000:8000 housing-price-api:0.1.0
 ```
 
+### Docker Compose (Recommended)
+
+```bash
+# Start service (builds if needed)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Check status
+docker compose ps
+
+# Stop service
+docker compose down
+```
+
+Service will be available at http://localhost:8000
+
 ## API Endpoints
 
 ### POST /predict
@@ -101,6 +119,7 @@ This reads `data/test_data.xlsx` and saves artifacts to `model/artifacts/`.
 ├── data/
 │   └── test_data.xlsx     # Training dataset
 ├── Dockerfile             # Multi-stage Docker build
+├── docker-compose.yml     # Docker Compose configuration
 ├── pyproject.toml         # Dependencies (uv)
 └── uv.lock               # Locked dependencies
 ```
