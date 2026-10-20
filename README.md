@@ -57,6 +57,22 @@ docker compose down
 
 Service will be available at http://localhost:8000
 
+### Testing
+
+```bash
+# Start the service first
+docker compose up -d
+
+# Run the test suite
+./test_api.sh
+
+# Test against a different URL
+./test_api.sh http://localhost:9000
+
+# Stop the service
+docker compose down
+```
+
 ## API Endpoints
 
 ### POST /predict
