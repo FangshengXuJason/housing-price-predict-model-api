@@ -350,10 +350,10 @@ Proxies to the ML API to retrieve model metadata.
 uv pip install -r pyproject.toml --extra dev
 
 # Run all tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=app --cov-report=term-missing
+uv run pytest tests/ --cov=app --cov-report=term-missing
 ```
 
 ### Integration Tests
