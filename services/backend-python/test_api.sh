@@ -24,12 +24,24 @@ run_test() {
     bold "▶ $description"
     if "$@"; then
         green "  ✓ PASS"
-        ((PASS++))
+        PASS=$((PASS + 1))
     else
         red "  ✗ FAIL"
-        ((FAIL++))
+        FAIL=$((FAIL + 1))
     fi
     echo
+}
+
+# Perform a request and assert the HTTP status code.
+# Usage: expect_status <expected_code> <method> <path> [extra curl args...]
+expect_status() {
+    local expected="$1"
+    local method="$2"
+    local path="$3"
+    shift 3
+    local code
+    code=$(curl -s -o /dev/null -w "%{http_code}" -X "$method" "$BASE_URL$path" "$@")
+    [ "$code" = "$expected" ]
 }
 
 # ---------- tests ----------
@@ -42,11 +54,11 @@ echo
 
 # 1. Health check
 run_test "GET /health" \
-    curl -sf -o /dev/null -w "%{http_code}" "$BASE_URL/health" | grep -q "200"
+    expect_status 200 GET /health
 
 # 2. Model info
 run_test "GET /api/model-info" \
-    curl -sf -o /dev/null -w "%{http_code}" "$BASE_URL/api/model-info" | grep -q "200"
+    expect_status 200 GET /api/model-info
 
 # 3. Create single prediction
 PREDICTION_RESPONSE=$(curl -sf -X POST "$BASE_URL/api/predictions" \
@@ -70,7 +82,7 @@ PREDICTION_ID=$(echo "$PREDICTION_RESPONSE" | python3 -c "import sys,json; print
 
 # 4. Create batch predictions
 run_test "POST /api/predictions/batch" \
-    curl -sf -X POST "$BASE_URL/api/predictions/batch" \
+    expect_status 201 POST /api/predictions/batch \
         -H "Content-Type: application/json" \
         -d '{
             "features_list": [
@@ -93,16 +105,16 @@ run_test "POST /api/predictions/batch" \
                     "school_rating": 9
                 }
             ]
-        }' -o /dev/null -w "%{http_code}" | grep -q "201"
+        }'
 
 # 5. Get prediction history
 run_test "GET /api/predictions (history)" \
-    curl -sf -o /dev/null -w "%{http_code}" "$BASE_URL/api/predictions" | grep -q "200"
+    expect_status 200 GET /api/predictions
 
 # 6. Get specific prediction by ID
 if [ -n "$PREDICTION_ID" ]; then
     run_test "GET /api/predictions/$PREDICTION_ID" \
-        curl -sf -o /dev/null -w "%{http_code}" "$BASE_URL/api/predictions/$PREDICTION_ID" | grep -q "200"
+        expect_status 200 GET "/api/predictions/$PREDICTION_ID"
 else
     red "▶ SKIP: GET /api/predictions/{id} (no prediction ID captured)"
     echo
@@ -110,15 +122,14 @@ fi
 
 # 7. Compare predictions
 run_test "POST /api/predictions/compare" \
-    curl -sf -X POST "$BASE_URL/api/predictions/compare" \
+    expect_status 200 POST /api/predictions/compare \
         -H "Content-Type: application/json" \
-        -d '{"prediction_ids": [1, 2]}' \
-        -o /dev/null -w "%{http_code}" | grep -q "200"
+        -d '{"prediction_ids": [1, 2]}'
 
 # 8. Delete single prediction
 if [ -n "$PREDICTION_ID" ]; then
     run_test "DELETE /api/predictions/$PREDICTION_ID" \
-        curl -sf -X DELETE -o /dev/null -w "%{http_code}" "$BASE_URL/api/predictions/$PREDICTION_ID" | grep -q "204"
+        expect_status 204 DELETE "/api/predictions/$PREDICTION_ID"
 else
     red "▶ SKIP: DELETE /api/predictions/{id} (no prediction ID captured)"
     echo
@@ -126,7 +137,7 @@ fi
 
 # 9. Delete all predictions
 run_test "DELETE /api/predictions (all)" \
-    curl -sf -X DELETE -o /dev/null -w "%{http_code}" "$BASE_URL/api/predictions" | grep -q "204"
+    expect_status 204 DELETE /api/predictions
 
 # ---------- summary ----------
 
