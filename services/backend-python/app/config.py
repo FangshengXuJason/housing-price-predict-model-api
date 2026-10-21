@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     ML_API_URL: str = "http://localhost:8000"
-    DATABASE_URL: str = "sqlite+aiosqlite:///./predictions.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./data/predictions.db"
 
     model_config = {
         "env_prefix": "",
