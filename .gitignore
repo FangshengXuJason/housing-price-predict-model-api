@@ -20,6 +20,14 @@ dist/
 .env
 .env.*
 
+# Local databases (runtime artifacts)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
 # OS
 .DS_Store
 
