@@ -61,6 +61,9 @@ run_test "GET /api/model-info" \
     expect_status 200 GET /api/model-info
 
 # 3. Create single prediction
+# Note: `|| PREDICTION_RESPONSE=""` keeps a curl failure (exit 7/22) from
+# aborting the whole script under `set -e`; the empty value is counted as a
+# FAIL below and tests 6/8 fall back to their SKIP branches.
 PREDICTION_RESPONSE=$(curl -sf -X POST "$BASE_URL/api/predictions" \
     -H "Content-Type: application/json" \
     -d '{
@@ -73,7 +76,7 @@ PREDICTION_RESPONSE=$(curl -sf -X POST "$BASE_URL/api/predictions" \
             "distance_to_city_center": 10,
             "school_rating": 7
         }
-    }')
+    }') || PREDICTION_RESPONSE=""
 
 run_test "POST /api/predictions (single)" \
     test -n "$PREDICTION_RESPONSE"
