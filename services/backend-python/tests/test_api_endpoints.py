@@ -22,7 +22,7 @@ class TestCreatePredictionEndpoint:
     async def test_201_success(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE, assert_all_called=True) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 350000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 350000.0})
             )
             resp = await client.post(
                 "/api/predictions",
@@ -97,7 +97,7 @@ class TestGetPredictionHistoryEndpoint:
     async def test_200_with_pagination(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 300000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 300000.0})
             )
             for _ in range(3):
                 await client.post("/api/predictions", json={"features": sample_features_data})
@@ -118,7 +118,7 @@ class TestGetPredictionByIdEndpoint:
     async def test_200_found(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 400000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 400000.0})
             )
             create_resp = await client.post(
                 "/api/predictions", json={"features": sample_features_data}
@@ -144,7 +144,7 @@ class TestDeletePredictionEndpoint:
     async def test_204_deleted(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 300000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 300000.0})
             )
             create_resp = await client.post(
                 "/api/predictions", json={"features": sample_features_data}
@@ -173,7 +173,7 @@ class TestDeleteAllPredictionsEndpoint:
     async def test_204_success(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 300000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 300000.0})
             )
             await client.post("/api/predictions", json={"features": sample_features_data})
             await client.post("/api/predictions", json={"features": sample_features_data})
@@ -196,8 +196,8 @@ class TestComparePredictionsEndpoint:
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
                 side_effect=[
-                    httpx.Response(200, json={"prediction": 200000.0}),
-                    httpx.Response(200, json={"prediction": 400000.0}),
+                    httpx.Response(200, json={"predicted_price": 200000.0}),
+                    httpx.Response(200, json={"predicted_price": 400000.0}),
                 ]
             )
             ids = []
@@ -222,7 +222,7 @@ class TestComparePredictionsEndpoint:
     async def test_404_missing_id(self, client: AsyncClient, sample_features_data):
         with respx.mock(base_url=MOCK_ML_BASE) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 300000.0})
+                return_value=httpx.Response(200, json={"predicted_price": 300000.0})
             )
             create_resp = await client.post(
                 "/api/predictions", json={"features": sample_features_data}

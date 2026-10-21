@@ -19,7 +19,7 @@ class TestPredictSingle:
     async def test_success(self, sample_features):
         with respx.mock(base_url=MOCK_BASE, assert_all_called=True) as rsps:
             rsps.post("/predict").mock(
-                return_value=httpx.Response(200, json={"prediction": 350000.50})
+                return_value=httpx.Response(200, json={"predicted_price": 350000.50})
             )
             client = MLClient(base_url=MOCK_BASE)
             price = await client.predict_single(sample_features)

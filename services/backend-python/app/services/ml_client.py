@@ -36,7 +36,7 @@ class MLClient:
             )
             response.raise_for_status()
             data = response.json()
-            return float(data["prediction"])
+            return float(data["predicted_price"])
         except httpx.HTTPStatusError as exc:
             raise MLClientError(
                 f"ML API returned status {exc.response.status_code}"
@@ -47,7 +47,7 @@ class MLClient:
     async def predict_batch(self, features_list: list[HousingFeatures]) -> list[float]:
         """Call POST /predict/batch and return list of predicted prices."""
         client = await self._get_client()
-        payload = [f.model_dump() for f in features_list]
+        payload = {"features": [f.model_dump() for f in features_list]}
         try:
             response = await client.post(
                 "/predict/batch",
