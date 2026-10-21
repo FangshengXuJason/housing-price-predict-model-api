@@ -34,3 +34,8 @@ dist/
 # IDE
 .idea/
 .vscode/
+
+# Next.js
+.next/
+out/
+portal/node_modules/

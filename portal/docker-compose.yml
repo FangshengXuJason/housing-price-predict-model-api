@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: housing-portal
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_PYTHON_API_URL=http://backend-python:8001
+      - NEXT_PUBLIC_JAVA_API_URL=http://backend-java:8002
+    depends_on:
+      - backend-python
+    networks:
+      - housing-net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Reference to existing backend services
+  # These are defined in services/backend-python/docker-compose.yml
+  backend-python:
+    image: housing-backend-python
+    container_name: housing-backend-python
+    ports:
+      - "8001:8001"
+    environment:
+      - ML_API_URL=http://ml-api:8000
+    depends_on:
+      ml-api:
+        condition: service_healthy
+    networks:
+      - housing-net
+
+  ml-api:
+    image: housing-ml-api
+    container_name: housing-ml-api
+    ports:
+      - "8000:8000"
+    networks:
+      - housing-net
+
+  # Future Java backend - uncomment when ready
+  # backend-java:
+  #   build:
+  #     context: ../services/backend-java
+  #     dockerfile: Dockerfile
+  #   container_name: housing-backend-java
+  #   ports:
+  #     - "8002:8002"
+  #   networks:
+  #     - housing-net
+
+networks:
+  housing-net:
+    driver: bridge
