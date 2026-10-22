@@ -178,7 +178,7 @@ export default function PredictionHistoryTable() {
 
         <div className="flex items-center gap-2">
           {selectedIds.size >= 2 && (
-            <Link href={`/comparison?ids=${Array.from(selectedIds).join(",")}`}>
+            <Link href={`/compare?ids=${Array.from(selectedIds).join(",")}`}>
               <Button variant="primary" size="sm">
                 Add Selected to Comparison
               </Button>

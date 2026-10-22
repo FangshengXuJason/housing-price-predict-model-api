@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useComparison, usePredictionContext } from '@/hooks';
 import { Button, Card, CardBody, ErrorMessage, Skeleton } from '@/components/ui';
 import ComparisonSummary from '@/components/ComparisonSummary';
@@ -8,7 +8,11 @@ import ComparisonTable from '@/components/ComparisonTable';
 import ComparisonChart from '@/components/charts/ComparisonChart';
 import type { SinglePredictionResponse } from '@/types';
 
-export default function ComparisonPanel() {
+interface ComparisonPanelProps {
+  preSelectedIds?: number[];
+}
+
+export default function ComparisonPanel({ preSelectedIds = [] }: ComparisonPanelProps) {
   const {
     selectedPredictionIds,
     addPredictionId,
@@ -23,6 +27,21 @@ export default function ComparisonPanel() {
 
   const { selectedPredictions } = usePredictionContext();
   const [manualId, setManualId] = useState('');
+
+  // On mount: merge preSelectedIds (from URL) + context predictions, then auto-compare
+  useEffect(() => {
+    const contextIds = selectedPredictions.map((p: SinglePredictionResponse) => p.id);
+    const merged = Array.from(new Set([...preSelectedIds, ...contextIds]));
+
+    if (merged.length >= 2) {
+      merged.forEach((id) => addPredictionId(id));
+      compare(merged);
+    } else if (merged.length > 0) {
+      merged.forEach((id) => addPredictionId(id));
+    }
+    // Only run on mount with initial preSelectedIds
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preSelectedIds]);
 
   // Merge context-selected IDs with manually added ones
   const allSelectedIds = Array.from(

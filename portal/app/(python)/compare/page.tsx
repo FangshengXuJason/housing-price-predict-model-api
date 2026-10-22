@@ -5,6 +5,17 @@ export const metadata: Metadata = {
   title: 'Compare - Property Value Estimator',
 };
 
-export default function ComparePage() {
-  return <ComparisonPanel />;
+interface ComparePageProps {
+  searchParams: Promise<{ ids?: string }>;
+}
+
+export default async function ComparePage({ searchParams }: ComparePageProps) {
+  const params = await searchParams;
+  const ids = params.ids
+    ? params.ids
+        .split(',')
+        .map((s) => Number(s.trim()))
+        .filter((n) => !isNaN(n) && n > 0)
+    : [];
+  return <ComparisonPanel preSelectedIds={ids} />;
 }
