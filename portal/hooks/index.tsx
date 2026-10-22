@@ -101,37 +101,19 @@ export function usePredictions(): UsePredictionsReturn {
   return { data, loading, error, page, setPage, totalPages, refetch: fetchPredictions };
 }
 
-// ─── useComparison ─────────────────────────────────────────────────────────────
+// ── useComparison ─────────────────────────────────────────────────────────────
 
 interface UseComparisonReturn {
-  selectedPredictionIds: number[];
-  addPredictionId: (id: number) => void;
-  removePredictionId: (id: number) => void;
-  clearSelection: () => void;
   comparisonData: ComparisonResponse | null;
   isLoading: boolean;
   error: string | null;
-  compare: (ids: number[]) => void;
-  clearComparison: () => void;
+  compare: (ids: number[]) => Promise<void>;
 }
 
 export function useComparison(): UseComparisonReturn {
-  const [selectedPredictionIds, setSelectedPredictionIds] = useState<number[]>([]);
   const [comparisonData, setComparisonData] = useState<ComparisonResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const addPredictionId = useCallback((id: number) => {
-    setSelectedPredictionIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
-  }, []);
-
-  const removePredictionId = useCallback((id: number) => {
-    setSelectedPredictionIds((prev) => prev.filter((pid) => pid !== id));
-  }, []);
-
-  const clearSelection = useCallback(() => {
-    setSelectedPredictionIds([]);
-  }, []);
 
   const compare = useCallback(async (ids: number[]) => {
     setIsLoading(true);
@@ -147,20 +129,10 @@ export function useComparison(): UseComparisonReturn {
     }
   }, []);
 
-  const clearComparison = useCallback(() => {
-    setComparisonData(null);
-    setError(null);
-  }, []);
-
   return {
-    selectedPredictionIds,
-    addPredictionId,
-    removePredictionId,
-    clearSelection,
     comparisonData,
     isLoading,
     error,
     compare,
-    clearComparison,
   };
 }

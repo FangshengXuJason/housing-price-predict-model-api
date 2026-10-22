@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useComparison, usePredictionContext } from '@/hooks';
-import { Button, Card, CardBody, ErrorMessage, Skeleton } from '@/components/ui';
+import { Card, CardBody, ErrorMessage, Skeleton } from '@/components/ui';
 import ComparisonSummary from '@/components/ComparisonSummary';
 import ComparisonTable from '@/components/ComparisonTable';
 import ComparisonChart from '@/components/charts/ComparisonChart';
@@ -14,19 +14,13 @@ interface ComparisonPanelProps {
 
 export default function ComparisonPanel({ preSelectedIds = [] }: ComparisonPanelProps) {
   const {
-    selectedPredictionIds,
-    addPredictionId,
-    removePredictionId,
-    clearSelection,
     comparisonData,
     isLoading,
     error,
     compare,
-    clearComparison,
   } = useComparison();
 
   const { selectedPredictions } = usePredictionContext();
-  const [manualId, setManualId] = useState('');
 
   // On mount: merge preSelectedIds (from URL) + context predictions, then auto-compare
   useEffect(() => {
@@ -34,143 +28,14 @@ export default function ComparisonPanel({ preSelectedIds = [] }: ComparisonPanel
     const merged = Array.from(new Set([...preSelectedIds, ...contextIds]));
 
     if (merged.length >= 2) {
-      merged.forEach((id) => addPredictionId(id));
       compare(merged);
-    } else if (merged.length > 0) {
-      merged.forEach((id) => addPredictionId(id));
     }
     // Only run on mount with initial preSelectedIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preSelectedIds]);
 
-  // Merge context-selected IDs with manually added ones
-  const allSelectedIds = Array.from(
-    new Set([
-      ...selectedPredictionIds,
-      ...selectedPredictions.map((p: SinglePredictionResponse) => p.id),
-    ])
-  );
-
-  const handleAddId = useCallback(() => {
-    const id = parseInt(manualId.trim(), 10);
-    if (!isNaN(id) && id > 0 && !allSelectedIds.includes(id)) {
-      addPredictionId(id);
-      setManualId('');
-    }
-  }, [manualId, allSelectedIds, addPredictionId]);
-
-  const handleCompare = useCallback(() => {
-    if (allSelectedIds.length >= 2) {
-      compare(allSelectedIds);
-    }
-  }, [allSelectedIds, compare]);
-
-  const handleClear = useCallback(() => {
-    clearSelection();
-    clearComparison();
-  }, [clearSelection, clearComparison]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleAddId();
-      }
-    },
-    [handleAddId]
-  );
-
   return (
     <div className="space-y-8">
-      {/* Selection Area */}
-      <Card>
-        <CardBody>
-          <h2 className="text-xl font-semibold text-secondary-900 mb-4">
-            Select Predictions to Compare
-          </h2>
-
-          {/* Selected IDs as removable badges */}
-          {allSelectedIds.length > 0 && (
-            <div className="mb-4">
-              <p className="text-sm text-secondary-600 mb-2">
-                Selected predictions:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {allSelectedIds.map((id) => (
-                  <span
-                    key={id}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800"
-                  >
-                    #{id}
-                    <button
-                      onClick={() => removePredictionId(id)}
-                      className="ml-1 text-primary-600 hover:text-primary-900 transition-colors"
-                      aria-label={`Remove prediction ${id}`}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Manual ID input */}
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1">
-              <label
-                htmlFor="prediction-id"
-                className="block text-sm font-medium text-secondary-700 mb-1"
-              >
-                Enter Prediction ID
-              </label>
-              <input
-                id="prediction-id"
-                type="number"
-                min="1"
-                value={manualId}
-                onChange={(e) => setManualId(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="e.g. 1, 2, 3..."
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg text-secondary-900 placeholder-secondary-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button
-                onClick={handleAddId}
-                disabled={!manualId.trim() || isNaN(parseInt(manualId.trim(), 10)) || parseInt(manualId.trim(), 10) <= 0}
-                variant="secondary"
-              >
-                Add
-              </Button>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <Button
-              onClick={handleCompare}
-              disabled={allSelectedIds.length < 2 || isLoading}
-              variant="primary"
-            >
-              {isLoading ? 'Comparing...' : 'Compare'}
-            </Button>
-            <Button
-              onClick={handleClear}
-              disabled={allSelectedIds.length === 0 && !comparisonData}
-              variant="secondary"
-            >
-              Clear
-            </Button>
-          </div>
-
-          {allSelectedIds.length < 2 && (
-            <p className="mt-3 text-sm text-secondary-500">
-              Select at least 2 predictions to compare.
-            </p>
-          )}
-        </CardBody>
-      </Card>
-
       {/* Error display */}
       {error && <ErrorMessage message={error} />}
 
