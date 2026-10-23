@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: "jdbc:sqlite::memory:"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  cache:
+    type: caffeine
+    cache-names: modelInfo,aggregateStats,predictionResult
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+ml:
+  api:
+    url: http://localhost:8000

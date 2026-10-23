@@ -1,0 +1,21 @@
+server:
+  port: 8002
+
+spring:
+  datasource:
+    url: jdbc:sqlite:./data/predictions.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  cache:
+    type: caffeine
+    cache-names: modelInfo,aggregateStats,predictionResult
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+ml:
+  api:
+    url: ${ML_API_URL:http://localhost:8000}

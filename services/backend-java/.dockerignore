@@ -1,0 +1,13 @@
+target/
+.venv/
+*.class
+*.jar
+*.log
+.idea/
+*.iml
+.DS_Store
+data/
+.git/
+.gitignore
+README.md
+test_api.sh

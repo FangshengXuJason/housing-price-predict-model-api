@@ -1,0 +1,46 @@
+services:
+  backend-java:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: housing-backend-java
+    ports:
+      - "8002:8002"
+    environment:
+      - ML_API_URL=http://ml-api:8000
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - java-backend-data:/app/data
+    depends_on:
+      ml-api:
+        condition: service_healthy
+    networks:
+      - housing-net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  java-backend-data:
+    driver: local
+
+networks:
+  housing-net:
+    driver: bridge

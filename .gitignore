@@ -35,6 +35,13 @@ dist/
 .idea/
 .vscode/
 
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
 # Next.js
 .next/
 out/

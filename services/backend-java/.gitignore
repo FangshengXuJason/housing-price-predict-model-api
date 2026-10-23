@@ -1,0 +1,39 @@
+# Build output
+target/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+.factorypath
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Runtime data
+data/
+*.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+
+# Spring Boot
+spring-boot-devtools-*.jar
+
+# Test output
+.coverage/
