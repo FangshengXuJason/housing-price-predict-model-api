@@ -98,8 +98,22 @@ backend-java/
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ML_API_URL` | `http://localhost:8000` | ML Model API URL |
+| `DATABASE_PATH` | `../backend-python/data/predictions.db` | Path to SQLite database file |
 | Server Port | `8002` | Application listen port |
 | `SPRING_PROFILES_ACTIVE` | — | Active Spring profile (e.g. `docker`) |
+
+### Database Path Configuration
+
+The Java backend shares the same SQLite database as the Python backend by default. The `DATABASE_PATH` environment variable controls the database file location:
+
+- **Local development**: Defaults to `../backend-python/data/predictions.db` (relative to `services/backend-java/`), which points to the shared Python backend database.
+- **Docker**: Set to `./data/predictions.db` in `docker-compose.yml`, using a dedicated volume mount for container isolation.
+
+To use a custom database path:
+
+```bash
+DATABASE_PATH=/path/to/your/predictions.db ./mvnw spring-boot:run
+```
 
 Configuration is managed in `src/main/resources/application.yml`.
 
@@ -159,7 +173,7 @@ The service uses Caffeine in-memory caches to reduce latency and ML API calls:
 
 On startup, the service loads **50 housing records** from a CSV file (`src/main/resources/data/`) into the `housing_data` table. These records are used by the analytics endpoints for statistical computations and correlations.
 
-Prediction results are persisted in the `prediction_record` table (SQLite at `./data/predictions.db`).
+Prediction results are persisted in the `prediction_record` table (SQLite, path controlled by `DATABASE_PATH` environment variable).
 
 ## Manual API Testing
 

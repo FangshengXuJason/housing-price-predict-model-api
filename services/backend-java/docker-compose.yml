@@ -9,6 +9,7 @@ services:
     environment:
       - ML_API_URL=http://ml-api:8000
       - SPRING_PROFILES_ACTIVE=docker
+      - DATABASE_PATH=./data/predictions.db
     volumes:
       - java-backend-data:/app/data
     depends_on:
