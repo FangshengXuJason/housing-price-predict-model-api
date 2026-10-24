@@ -11,6 +11,7 @@ import {
   PaginationParams,
   ApiError,
   AggregateStatisticsResponse,
+  HousingRecord,
 } from "@/types";
 
 class JavaApiClient {
@@ -155,6 +156,11 @@ class JavaApiClient {
 
   async getCorrelations(): Promise<Record<string, number>> {
     return this.request<Record<string, number>>("/analytics/correlation");
+  }
+
+  // Dashboard data endpoint
+  async getHousingData(): Promise<HousingRecord[]> {
+    return this.request<HousingRecord[]>("/dashboard/data");
   }
 }
 
