@@ -7,20 +7,8 @@ import { Card, CardBody } from "@/components/ui";
 interface PriceChartProps {
   features: HousingFeatures;
   predictedPrice: number;
-  modelInfo?: ModelInfoResponse;
+  modelInfo: ModelInfoResponse;
 }
-
-const DEFAULT_COEFFICIENTS: Record<string, number> = {
-  square_footage: 759.27,
-  bedrooms: 5463.86,
-  bathrooms: 11368.38,
-  year_built: -1101.95,
-  lot_size: 22813.99,
-  distance_to_city_center: 25937.05,
-  school_rating: 14373.25,
-};
-
-const DEFAULT_INTERCEPT = 270375.0;
 
 const FEATURE_LABELS: Record<string, string> = {
   square_footage: "Sq. Footage",
@@ -33,8 +21,8 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 export default function PriceChart({ features, predictedPrice, modelInfo }: PriceChartProps) {
-  const coefficients = modelInfo?.coefficients || DEFAULT_COEFFICIENTS;
-  const intercept = modelInfo?.intercept || DEFAULT_INTERCEPT;
+  const coefficients = modelInfo.coefficients;
+  const intercept = modelInfo.intercept;
 
   const contributions = Object.entries(features).map(([key, value]) => {
     const coefficient = coefficients[key] || 0;

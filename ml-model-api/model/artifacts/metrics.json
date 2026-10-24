@@ -14,5 +14,15 @@
     "distance_to_city_center": 25937.054543000046,
     "school_rating": 14373.253851132913
   },
-  "intercept": 270375.0
+  "intercept": 270375.0,
+  "raw_coefficients": {
+    "square_footage": 1.783497691777223,
+    "bedrooms": 7435.371651710984,
+    "bathrooms": 16900.099414053795,
+    "year_built": -109.31305994861245,
+    "lot_size": 12.150971654408885,
+    "distance_to_city_center": 13404.666014265575,
+    "school_rating": 18057.07956088585
+  },
+  "raw_intercept": 135437.4655744608
 }

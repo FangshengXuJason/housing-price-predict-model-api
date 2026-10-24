@@ -53,6 +53,8 @@ export interface ModelInfoResponse {
   coefficients: Record<string, number>;
   intercept: number;
   metrics: Record<string, number>;
+  scaled_coefficients?: Record<string, number>;
+  scaled_intercept?: number;
 }
 
 export interface HealthResponse {

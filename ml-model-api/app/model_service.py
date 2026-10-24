@@ -22,6 +22,7 @@ FEATURE_COLS = [
 _model = None
 _scaler = None
 _metrics = None
+_raw_model_info = None
 
 
 def _load_artifacts():
@@ -53,13 +54,49 @@ def predict_batch(features_list: list[dict]) -> list[float]:
     return [float(p) for p in model.predict(scaled)]
 
 
+def _compute_raw_coefficients():
+    """Convert scaled-space coefficients to raw-space coefficients.
+
+    Returns dict with raw_coefficients, raw_intercept, scaled_coefficients,
+    scaled_intercept, and feature metrics.
+    """
+    global _raw_model_info
+    if _raw_model_info is not None:
+        return _raw_model_info
+
+    model, scaler, metrics = _load_artifacts()
+
+    means = scaler.mean_
+    stds = scaler.scale_
+    scaled_coefs = model.coef_
+
+    # raw_coef = scaled_coef / std
+    raw_coefs = scaled_coefs / stds
+
+    # corrected_intercept = intercept - sum(scaled_coef * mean / std)
+    corrected_intercept = float(model.intercept_ - np.sum(scaled_coefs * means / stds))
+
+    _raw_model_info = {
+        "raw_coefficients": {
+            col: float(raw_coefs[i]) for i, col in enumerate(FEATURE_COLS)
+        },
+        "raw_intercept": corrected_intercept,
+        "scaled_coefficients": metrics["coefficients"],
+        "scaled_intercept": metrics["intercept"],
+    }
+    return _raw_model_info
+
+
 def get_model_info() -> dict:
-    """Return model type, coefficients, intercept, and metrics."""
+    """Return model type, raw-space coefficients, intercept, and metrics."""
     model, _, metrics = _load_artifacts()
+    raw_info = _compute_raw_coefficients()
     return {
         "model_type": type(model).__name__,
-        "coefficients": metrics["coefficients"],
-        "intercept": metrics["intercept"],
+        "coefficients": raw_info["raw_coefficients"],
+        "intercept": raw_info["raw_intercept"],
+        "scaled_coefficients": raw_info["scaled_coefficients"],
+        "scaled_intercept": raw_info["scaled_intercept"],
         "metrics": {
             "train_r2": metrics["train_r2"],
             "test_r2": metrics["test_r2"],

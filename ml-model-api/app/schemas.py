@@ -36,8 +36,10 @@ class ModelInfoResponse(BaseModel):
     """Model information and metrics."""
 
     model_type: str = Field(..., description="Type of regression model")
-    coefficients: dict[str, float] = Field(..., description="Feature coefficients")
-    intercept: float = Field(..., description="Model intercept")
+    coefficients: dict[str, float] = Field(..., description="Raw-space feature coefficients")
+    intercept: float = Field(..., description="Raw-space model intercept")
+    scaled_coefficients: dict[str, float] = Field(..., description="Scaled-space feature coefficients")
+    scaled_intercept: float = Field(..., description="Scaled-space model intercept")
     metrics: dict[str, float] = Field(..., description="Training and test metrics")
 
 

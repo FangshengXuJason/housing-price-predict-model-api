@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePredictionForm } from "@/hooks/usePredictionForm";
 import { pythonApiClient } from "@/lib/api-client";
 import { FEATURE_CONSTRAINTS } from "@/lib/constants";
-import { SinglePredictionResponse, ApiError } from "@/types";
+import { SinglePredictionResponse, ModelInfoResponse, ApiError } from "@/types";
 import FormResults from "./FormResults";
 import { Button, Input, Card, CardBody, Alert, Spinner } from "@/components/ui";
 
 export default function PredictionForm() {
   const [predictionResult, setPredictionResult] = useState<SinglePredictionResponse | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [modelInfo, setModelInfo] = useState<ModelInfoResponse | null>(null);
+  const [modelInfoError, setModelInfoError] = useState<string | null>(null);
 
   const {
     register,
@@ -18,6 +20,18 @@ export default function PredictionForm() {
     formState: { errors, isSubmitting },
     reset,
   } = usePredictionForm();
+
+  useEffect(() => {
+    const fetchModelInfo = async () => {
+      try {
+        const info = await pythonApiClient.getModelInfo();
+        setModelInfo(info);
+      } catch {
+        setModelInfoError("Failed to load model information. Price breakdown may be unavailable.");
+      }
+    };
+    fetchModelInfo();
+  }, []);
 
   const onSubmit = async (data: Record<string, number>) => {
     try {
@@ -51,11 +65,23 @@ export default function PredictionForm() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (predictionResult) {
+  if (predictionResult && !modelInfo && !modelInfoError) {
+    return (
+      <Card>
+        <CardBody className="flex items-center justify-center py-12">
+          <Spinner size="lg" />
+          <span className="ml-3 text-secondary-600 dark:text-secondary-400">Loading model info...</span>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  if (predictionResult && modelInfo) {
     return (
       <FormResults
         prediction={predictionResult}
         onNewPrediction={handleNewPrediction}
+        modelInfo={modelInfo}
       />
     );
   }
@@ -63,6 +89,11 @@ export default function PredictionForm() {
   return (
     <Card>
       <CardBody>
+        {modelInfoError && (
+          <Alert variant="error" title="Model Info Error">
+            {modelInfoError}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {submitError && (
             <Alert variant="error" title="Error">
