@@ -40,9 +40,9 @@ export default function Home() {
           Backend Services
         </h2>
         <p className="text-secondary-600 text-center mb-12 max-w-2xl mx-auto">
-          Our platform is powered by two backend services. The Python backend is
-          fully operational with ML predictions, while the Java backend is
-          currently in development.
+          Our platform is powered by two backend services. The Python backend
+          provides ML predictions and analysis tools, while the Java backend
+          offers a property market dashboard and what-if analysis capabilities.
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -166,62 +166,78 @@ export default function Home() {
                   Java Backend
                 </h3>
               </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-100 text-accent-800">
-                Coming Soon
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                Active
               </span>
             </div>
             <p className="text-secondary-600 mb-6 leading-relaxed">
-              Spring Boot backend currently under development. Will provide
-              additional API endpoints and enterprise-grade features for
-              property valuation.
+              Java 21 + Spring Boot backend featuring property market analytics,
+              interactive dashboard, ML-powered predictions, and what-if scenario
+              analysis tools.
             </p>
             <div className="space-y-2 mb-6">
-              <div className="flex items-center text-sm text-secondary-500">
+              <div className="flex items-center text-sm text-secondary-700">
                 <svg
-                  className="w-4 h-4 mr-2 text-secondary-400"
+                  className="w-4 h-4 mr-2 text-success-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 100-2H9V8a1 1 0 00-1-1z"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                     clipRule="evenodd"
                   />
                 </svg>
-                Spring Boot framework
+                Market Statistics & Charts
               </div>
-              <div className="flex items-center text-sm text-secondary-500">
+              <div className="flex items-center text-sm text-secondary-700">
                 <svg
-                  className="w-4 h-4 mr-2 text-secondary-400"
+                  className="w-4 h-4 mr-2 text-success-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 100-2H9V8a1 1 0 00-1-1z"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                     clipRule="evenodd"
                   />
                 </svg>
-                Enterprise features
+                What-If Scenario Analysis
               </div>
-              <div className="flex items-center text-sm text-secondary-500">
+              <div className="flex items-center text-sm text-secondary-700">
                 <svg
-                  className="w-4 h-4 mr-2 text-secondary-400"
+                  className="w-4 h-4 mr-2 text-success-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 100-2H9V8a1 1 0 00-1-1z"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                     clipRule="evenodd"
                   />
                 </svg>
-                Additional endpoints
+                ML-Powered Predictions
               </div>
             </div>
-            <div className="inline-flex items-center justify-center w-full px-6 py-3 bg-secondary-100 text-secondary-500 font-semibold rounded-lg cursor-not-allowed">
-              Under Development
-            </div>
+            <Link
+              href="/java/dashboard"
+              className="inline-flex items-center justify-center w-full px-6 py-3 bg-accent-600 text-white font-semibold rounded-lg hover:bg-accent-700 transition-colors duration-200"
+            >
+              Explore Java Dashboard
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
