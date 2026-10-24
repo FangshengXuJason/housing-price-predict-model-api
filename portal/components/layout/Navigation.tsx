@@ -56,20 +56,17 @@ export function Navigation() {
             const active = isActive(item.href);
             return (
               <li key={item.href}>
-                <div
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                <Link
+                  href={item.href}
+                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
                     active
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-secondary-500'
+                      ? 'bg-primary-50 text-primary-700 border-l-2 border-primary-600'
+                      : 'text-secondary-700 hover:bg-secondary-100 hover:text-secondary-900'
                   }`}
+                  aria-current={active ? 'page' : undefined}
                 >
-                  <span className="flex items-center gap-2">
-                    {item.label}
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent-100 text-accent-800">
-                      Soon
-                    </span>
-                  </span>
-                </div>
+                  {item.label}
+                </Link>
               </li>
             );
           })}

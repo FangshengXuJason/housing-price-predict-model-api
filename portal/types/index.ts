@@ -69,3 +69,22 @@ export interface PaginationParams {
   skip: number;
   limit: number;
 }
+
+export interface FeatureStatistics {
+  mean: number;
+  median: number;
+  std_dev: number;
+  min: number;
+  max: number;
+  q25: number;
+  q50: number;
+  q75: number;
+}
+
+export interface AggregateStatisticsResponse {
+  count: number;
+  price_statistics: FeatureStatistics;
+  feature_statistics: Record<string, FeatureStatistics>;
+  price_by_bedroom: Record<number, number>;
+  correlations: Record<string, number>;
+}

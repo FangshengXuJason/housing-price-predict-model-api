@@ -73,8 +73,13 @@ export const NAV_ITEMS = [
     group: "python" as const,
   },
   {
-    href: "/java",
-    label: "Java API",
+    href: "/java/dashboard",
+    label: "Dashboard",
+    group: "java" as const,
+  },
+  {
+    href: "/java/what-if",
+    label: "What-If Analysis",
     group: "java" as const,
   },
 ];
