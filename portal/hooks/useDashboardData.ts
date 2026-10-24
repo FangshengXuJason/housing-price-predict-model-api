@@ -38,7 +38,7 @@ export function useDashboardData(): DashboardData {
     setLoading(true);
     setError(null);
     try {
-      const [statsRes, priceByBedroomRes, correlationsRes, rawRes] = await Promise.all([
+      const [statsRes, priceByBedroomRes, correlationsRes, rawRes] = await Promise.allSettled([
         javaApiClient.getStatistics(),
         javaApiClient.getPriceByBedroom(),
         javaApiClient.getCorrelations(),
@@ -47,10 +47,43 @@ export function useDashboardData(): DashboardData {
           return r.json();
         }),
       ]);
-      setStatistics(statsRes);
-      setPriceByBedroom(priceByBedroomRes);
-      setCorrelations(correlationsRes);
-      setRawData(rawRes as HousingRecord[]);
+
+      // Track if we have any data to display
+      let hasAnyData = false;
+      let errorMessage = '';
+
+      if (statsRes.status === 'fulfilled') {
+        setStatistics(statsRes.value);
+        hasAnyData = true;
+      } else {
+        errorMessage += 'Failed to load statistics. ';
+      }
+
+      if (priceByBedroomRes.status === 'fulfilled') {
+        setPriceByBedroom(priceByBedroomRes.value);
+        hasAnyData = true;
+      } else {
+        errorMessage += 'Failed to load price by bedroom. ';
+      }
+
+      if (correlationsRes.status === 'fulfilled') {
+        setCorrelations(correlationsRes.value);
+        hasAnyData = true;
+      } else {
+        errorMessage += 'Failed to load correlations. ';
+      }
+
+      if (rawRes.status === 'fulfilled') {
+        setRawData(rawRes.value as HousingRecord[]);
+        hasAnyData = true;
+      } else {
+        errorMessage += 'Failed to load raw data. ';
+      }
+
+      // Only show error if we have no data at all
+      if (!hasAnyData) {
+        setError(errorMessage.trim() || 'Failed to load dashboard data');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load dashboard data';
       setError(message);

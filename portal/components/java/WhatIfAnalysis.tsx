@@ -61,6 +61,23 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+/**
+ * Format an API error into a user-friendly message.
+ * Detects network/proxy failures (status 0 or 5xx) and shows actionable guidance.
+ */
+function formatApiError(err: ApiError): string {
+  // Network error: fetch failed entirely (backend not running, DNS, CORS, etc.)
+  if (!err.status || err.status === 0) {
+    return "Prediction service is unavailable. Please ensure the Java backend and ML API are running.";
+  }
+  // Proxy / gateway errors from Next.js rewrite
+  if (err.status >= 500) {
+    return "Prediction service is unavailable (server error). Please ensure the Java backend and ML API are running.";
+  }
+  // Business-level errors from the backend
+  return err.detail || "Prediction failed. Please try again.";
+}
+
 export default function WhatIfAnalysis() {
   const [features, setFeatures] = useState<HousingFeatures>(DEFAULT_FEATURES);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -97,7 +114,7 @@ export default function WhatIfAnalysis() {
           setCurrentPrediction(result);
         } catch (err) {
           const apiError = err as ApiError;
-          setPredictionError(apiError.detail || "Prediction failed");
+          setPredictionError(formatApiError(apiError));
         } finally {
           setIsPredicting(false);
         }
@@ -127,7 +144,7 @@ export default function WhatIfAnalysis() {
       setCurrentPrediction(result);
     } catch (err) {
       const apiError = err as ApiError;
-      setPredictionError(apiError.detail || "Prediction failed");
+      setPredictionError(formatApiError(apiError));
     } finally {
       setIsPredicting(false);
     }
@@ -276,12 +293,41 @@ export default function WhatIfAnalysis() {
                 Prediction
               </h2>
 
+              {/* Empty state: no prediction yet, no error, not loading */}
+              {!currentPrediction && !predictionError && !isPredicting && (
+                <div className="text-center py-10">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <svg className="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
+                    No Prediction Yet
+                  </h3>
+                  <ul className="text-sm text-secondary-500 dark:text-secondary-400 space-y-1.5 max-w-sm mx-auto mb-6">
+                    <li>Adjust the property features using the sliders above</li>
+                    <li>Click <span className="font-medium text-secondary-700 dark:text-secondary-300">&quot;Predict&quot;</span> to estimate the price</li>
+                    <li>Save results as scenarios to compare side-by-side</li>
+                  </ul>
+                  <Button
+                    variant="primary"
+                    onClick={handlePredict}
+                    disabled={isPredicting}
+                    className="bg-amber-600 hover:bg-amber-700 focus:ring-amber-500 px-8"
+                  >
+                    Predict Price
+                  </Button>
+                </div>
+              )}
+
+              {/* Error state */}
               {predictionError && (
-                <Alert variant="error" title="Error">
+                <Alert variant="error" title="Prediction failed">
                   {predictionError}
                 </Alert>
               )}
 
+              {/* Loading state (only when we already have a prediction or explicit predict) */}
               {isPredicting && !currentPrediction && (
                 <div className="space-y-3">
                   <Skeleton className="h-12 w-full" />
@@ -289,6 +335,7 @@ export default function WhatIfAnalysis() {
                 </div>
               )}
 
+              {/* Prediction result */}
               {currentPrediction && (
                 <div className="mb-4">
                   <div className="text-center py-6 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/10 rounded-lg border border-amber-200 dark:border-amber-800">
@@ -305,32 +352,35 @@ export default function WhatIfAnalysis() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <Button
-                  variant="primary"
-                  onClick={handlePredict}
-                  disabled={isPredicting}
-                  className="flex-1 bg-amber-600 hover:bg-amber-700 focus:ring-amber-500"
-                >
-                  {isPredicting ? (
-                    <>
-                      <Spinner size="sm" className="mr-2" />
-                      Predicting...
-                    </>
-                  ) : (
-                    "Predict"
-                  )}
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleSaveScenario}
-                  disabled={!currentPrediction || scenarios.length >= 5}
-                  className="flex-1"
-                >
-                  Save as Scenario
-                </Button>
-              </div>
-              {scenarios.length >= 5 && (
+              {/* Action buttons (shown after first prediction or alongside error) */}
+              {(currentPrediction || predictionError) && (
+                <div className="flex gap-3">
+                  <Button
+                    variant="primary"
+                    onClick={handlePredict}
+                    disabled={isPredicting}
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 focus:ring-amber-500"
+                  >
+                    {isPredicting ? (
+                      <>
+                        <Spinner size="sm" className="mr-2" />
+                        Predicting...
+                      </>
+                    ) : (
+                      "Predict Again"
+                    )}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleSaveScenario}
+                    disabled={!currentPrediction || scenarios.length >= 5}
+                    className="flex-1"
+                  >
+                    Save as Scenario
+                  </Button>
+                </div>
+              )}
+              {scenarios.length >= 5 && (currentPrediction || predictionError) && (
                 <p className="text-xs text-secondary-500 mt-2 text-center">
                   Maximum of 5 scenarios reached
                 </p>
